@@ -1,0 +1,83 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+
+type Props = CollectionEntry<'products'>['data'];
+
+const { name, description, image, appStoreLink, googlePlayLink, webLink, webLinkText } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={name} description={description} />
+		<style>
+			main {
+				width: calc(100% - 2em);
+				max-width: 100%;
+				margin: 0;
+			}
+			.info-row {
+                display: flex;
+                flex-direction: row;
+                justify-content: start;
+                align-items: center;
+                gap: 1em
+            }
+			.hero-image img {
+				display: block;
+				margin: 0 auto;
+				border-radius: 12px;
+				box-shadow: var(--box-shadow);
+			}
+			.prose {
+				width: 720px;
+				max-width: calc(100% - 2em);
+				margin: auto;
+				padding: 1em;
+				color: rgb(var(--gray-dark));
+			}
+			.title {
+				margin-bottom: 0em;
+				padding: 1em 0;
+				line-height: 1;
+			}
+			.title h5 {
+				margin: 0 0 1em 0;
+			}
+            a:hover img {
+				box-shadow: var(--box-shadow);
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="prose">
+                    <div class="info-row">
+                        <div class="hero-image">
+                            {image && <img width={100} height={100} src={image} alt="Icon" />}
+                        </div>
+                        <div class="title">
+                            <h3>{name}</h3>
+                            <h5>{description}</h5>
+                        </div>
+                    </div>
+                    {webLink && <a href={webLink}>{webLinkText ?? "Website"}</a>}
+                    <div class="info-row">
+                       {appStoreLink && <a href={appStoreLink}><img width={150} height={100} src={"/appstorebutton.webp"} alt="Appstore Link" /></a>}
+                       {googlePlayLink && <a href={googlePlayLink}><img width={150} height={100} src={"/googleplaybutton.webp"} alt="Appstore Link" /></a>}
+                    </div>
+					<hr />
+					<slot />
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>

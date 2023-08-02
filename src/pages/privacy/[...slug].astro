@@ -1,0 +1,21 @@
+---
+import { CollectionEntry, getCollection } from "astro:content";
+import Product from "../../layouts/Product.astro";
+import Privacy from "../../layouts/Privacy.astro";
+
+export async function getStaticPaths() {
+  const products = await getCollection("privacy");
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: product,
+  }));
+}
+type Props = CollectionEntry<"privacy">;
+
+const privacy = Astro.props;
+const { Content } = await privacy.render();
+---
+
+<Privacy {...privacy.data}>
+  <Content />
+</Privacy>
