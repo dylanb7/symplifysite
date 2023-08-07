@@ -1,7 +1,9 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
+
 import Footer from "../components/Footer.astro";
+import { Home } from "../components/Home";
+
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 ---
 
@@ -11,35 +13,9 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
-    <Header title={SITE_TITLE} />
-    <style>
-      h1 {
-        text-align: center;
-      }
-      ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2rem;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      ul li {
-        width: calc(50% - 1rem);
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-      }
-      ul li * {
-        text-decoration: none;
-        transition: 0.2s ease;
-      }
-    </style>
     <main>
-      <h1>Welcome to Symplify!</h1>
-      <hr />
+      <Home client:load />
     </main>
-
     <Footer />
   </body>
 </html>
