@@ -21,13 +21,12 @@ export const AuthComponent = () => {
       setErrors((err) => ({ ...err, email: e?.toString() ?? "" }))
     }
   }
-  return <form onSubmit={submit} style={{
+  return <div style={{ display: "flex", alignItems: "stretch", justifyContent: "center" }}><form onSubmit={submit} style={{
     boxShadow: "1px 1px 3px #ccc",
     borderRadius: "8px",
     padding: "20px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     justifyContent: "center",
     maxWidth: "35rem",
     gap: "1rem",
@@ -65,5 +64,5 @@ export const AuthComponent = () => {
       cursor: "pointer",
       borderRadius: "6px",
     }} type="submit" value={"Submit"} >Sign In</button>
-  </form>
+  </form></div>
 }
