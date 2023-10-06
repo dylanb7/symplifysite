@@ -1,0 +1,21 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+
+import Footer from "../components/Footer.astro";
+import { SupaReset } from "../components/PasswordReset.tsx";
+
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <main>
+      <SupaReset client:load />
+    </main>
+    <Footer />
+  </body>
+</html>
