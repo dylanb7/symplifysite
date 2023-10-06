@@ -2,7 +2,7 @@ import React from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { AuthProvider, useSupabaseClient } from "./AuthProvider";
 import { supabase } from "../supabase";
-import type { AuthError, User } from "@supabase/supabase-js";
+import { AuthError, User } from "@supabase/supabase-js";
 
 const locale: I18nVariables = {
   sign_up: {
@@ -54,12 +54,29 @@ export const SupaReset = () => {
 
   React.useEffect(() => {
     setUserLoading(true);
+
+    const getUrlSesh = async () => {
+      const windowUrl = window.location.search;
+      const params = new URLSearchParams(windowUrl);
+      const access = params.get("access_token");
+      const refresh = params.get("refresh_token");
+      if (!access || !refresh) {
+        return new AuthError("No tokens");
+      }
+      return await supabase.auth.setSession({
+        access_token: access,
+        refresh_token: refresh,
+      });
+    };
+
     const getUser = async () => {
+      await getUrlSesh();
       const { data, error } = await supabase.auth.getSession();
       const currentUser = data.session?.user;
       setUser(currentUser ?? null);
       setUserLoading(false);
     };
+
     getUser();
     const {
       data: { subscription },
