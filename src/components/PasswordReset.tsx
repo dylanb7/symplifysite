@@ -49,7 +49,7 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const params = useParams();
+  const { access_token, refresh_token } = useParams();
 
   const [user, setUser] = React.useState<User | null | undefined>(null);
   const [userLoading, setUserLoading] = React.useState(true);
@@ -59,28 +59,26 @@ export const SupaReset = () => {
   const [loading, setLoading] = React.useState(false);
 
   const getUrlSesh = async () => {
-    const access = params["access_token"];
-    const refresh = params["refresh_token"];
-    setFieldError((access ?? "") + (refresh ?? ""));
-    if (!access || !refresh) {
+    setFieldError((access_token ?? "") + (refresh_token ?? ""));
+    if (!access_token || !refresh_token) {
       return new AuthError("No tokens");
     }
 
     const val = await supabase.auth.setSession({
-      access_token: access,
-      refresh_token: refresh,
+      access_token,
+      refresh_token,
     });
 
     setMessage(
       val.error?.message ??
         val.data.session?.access_token ??
-        "" + access + refresh
+        "" + access_token + refresh_token
     );
   };
 
   useEffect(() => {
     getUrlSesh();
-  }, [params]);
+  }, [access_token, refresh_token]);
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,7 +149,6 @@ export const SupaReset = () => {
             ? locale?.update_password?.loading_button_label
             : locale.update_password?.button_label}
         </button>
-        {params && <h1>{params}</h1>}
         {message && <h2>{message}</h2>}
         {fieldError && <h2 style={{ color: "red" }}>{fieldError}</h2>}
       </form>
