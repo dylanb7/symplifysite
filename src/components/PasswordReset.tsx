@@ -2,7 +2,7 @@ import React from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { AuthProvider, useSupabaseClient } from "./AuthProvider";
 import { supabase } from "../supabase";
-import { AuthError, User } from "@supabase/supabase-js";
+import { AuthError, User, UserAttributes } from "@supabase/supabase-js";
 
 const locale: I18nVariables = {
   sign_up: {
@@ -51,53 +51,49 @@ const locale: I18nVariables = {
 export const SupaReset = () => {
   const [user, setUser] = React.useState<User | null | undefined>(null);
   const [userLoading, setUserLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    setUserLoading(true);
-
-    const getUrlSesh = async () => {
-      const windowUrl = window.location.search;
-      const params = new URLSearchParams(windowUrl);
-      const access = params.get("access_token");
-      const refresh = params.get("refresh_token");
-      if (!access || !refresh) {
-        return new AuthError("No tokens");
-      }
-      return await supabase.auth.setSession({
-        access_token: access,
-        refresh_token: refresh,
-      });
-    };
-
-    const getUser = async () => {
-      await getUrlSesh();
-      const { data, error } = await supabase.auth.getSession();
-      const currentUser = data.session?.user;
-      setUser(currentUser ?? null);
-      setUserLoading(false);
-    };
-
-    getUser();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  const [params, setParams] = React.useState<URLSearchParams | undefined>(
+    undefined
+  );
   const [password, setPassword] = React.useState("");
   const [fieldError, setFieldError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+
+  const getUrlSesh = async () => {
+    const windowUrl = window.location.search;
+    const params = new URLSearchParams(windowUrl);
+    setParams(params);
+
+    const access = params.get("access_token");
+    const refresh = params.get("refresh_token");
+    setFieldError((access ?? "") + (refresh ?? ""));
+    if (!access || !refresh) {
+      return new AuthError("No tokens");
+    }
+
+    const val = await supabase.auth.setSession({
+      access_token: access,
+      refresh_token: refresh,
+    });
+
+    setMessage(
+      val.error?.message ??
+        val.data.session?.access_token ??
+        "" + access + refresh
+    );
+  };
+
+  if (typeof window != "undefined") {
+    getUrlSesh();
+  }
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldError("");
     setMessage("");
     setLoading(true);
+    const l: UserAttributes = {};
+    supabase.auth.updateUser({});
     const { error } = await supabase.auth.updateUser({ password });
     if (error) setFieldError(error.message);
     else setMessage(locale.update_password?.confirmation_text as string);
@@ -136,7 +132,6 @@ export const SupaReset = () => {
           <input
             id="password"
             name="password"
-            placeholder={locale.update_password?.password_input_placeholder}
             type="password"
             autoFocus
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -161,6 +156,7 @@ export const SupaReset = () => {
             ? locale?.update_password?.loading_button_label
             : locale.update_password?.button_label}
         </button>
+        {params && <h1>{params}</h1>}
         {message && <h2>{message}</h2>}
         {fieldError && <h2 style={{ color: "red" }}>{fieldError}</h2>}
       </form>
