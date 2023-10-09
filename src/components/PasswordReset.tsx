@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { supabase } from "../supabase";
 
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const locale: I18nVariables = {
   sign_up: {
@@ -49,7 +49,9 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const { access_token, refresh_token } = useParams();
+  const [searchParams] = useSearchParams();
+  const access_token = searchParams.get("access_token");
+  const refresh_token = searchParams.get("refresh_token");
 
   const [password, setPassword] = React.useState("");
   const [fieldError, setFieldError] = React.useState("");
@@ -62,7 +64,7 @@ export const SupaReset = () => {
     console.log("hi");
     setFieldError((access_token ?? "") + (refresh_token ?? ""));
     if (!access_token || !refresh_token) {
-      setFieldError("No Tokens");
+      setFieldError([...searchParams.keys()].join(","));
       return;
     }
 
