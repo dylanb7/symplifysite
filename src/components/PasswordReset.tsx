@@ -49,7 +49,7 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const windowUrl = window.location.search;
+  const windowUrl = window?.location.search ?? "";
   const params = new URLSearchParams(windowUrl);
 
   const [user, setUser] = React.useState<User | null | undefined>(null);
