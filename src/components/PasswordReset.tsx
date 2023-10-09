@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { AuthProvider, useSupabaseClient } from "./AuthProvider";
 import { supabase } from "../supabase";
@@ -49,21 +49,17 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
+  const windowUrl = window.location.search;
+  const params = new URLSearchParams(windowUrl);
+
   const [user, setUser] = React.useState<User | null | undefined>(null);
   const [userLoading, setUserLoading] = React.useState(true);
-  const [params, setParams] = React.useState<URLSearchParams | undefined>(
-    undefined
-  );
   const [password, setPassword] = React.useState("");
   const [fieldError, setFieldError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
   const getUrlSesh = async () => {
-    const windowUrl = window.location.search;
-    const params = new URLSearchParams(windowUrl);
-    setParams(params);
-
     const access = params.get("access_token");
     const refresh = params.get("refresh_token");
     setFieldError((access ?? "") + (refresh ?? ""));
@@ -83,9 +79,9 @@ export const SupaReset = () => {
     );
   };
 
-  if (typeof window != "undefined") {
+  useEffect(() => {
     getUrlSesh();
-  }
+  }, [params]);
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
