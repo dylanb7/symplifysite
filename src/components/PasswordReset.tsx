@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
-import { AuthProvider, useSupabaseClient } from "./AuthProvider";
 import { supabase } from "../supabase";
 import { AuthError, User, UserAttributes } from "@supabase/supabase-js";
+import { useParams } from "react-router-dom";
 
 const locale: I18nVariables = {
   sign_up: {
@@ -49,8 +49,7 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const windowUrl = window?.location.search ?? "";
-  const params = new URLSearchParams(windowUrl);
+  const params = useParams();
 
   const [user, setUser] = React.useState<User | null | undefined>(null);
   const [userLoading, setUserLoading] = React.useState(true);
@@ -60,8 +59,8 @@ export const SupaReset = () => {
   const [loading, setLoading] = React.useState(false);
 
   const getUrlSesh = async () => {
-    const access = params.get("access_token");
-    const refresh = params.get("refresh_token");
+    const access = params["access_token"];
+    const refresh = params["refresh_token"];
     setFieldError((access ?? "") + (refresh ?? ""));
     if (!access || !refresh) {
       return new AuthError("No tokens");
