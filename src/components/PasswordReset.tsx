@@ -85,8 +85,6 @@ export const SupaReset = () => {
     setFieldError("");
     setMessage("");
     setLoading(true);
-    const l: UserAttributes = {};
-    supabase.auth.updateUser({});
     const { error } = await supabase.auth.updateUser({ password });
     if (error) setFieldError(error.message);
     else setMessage(locale.update_password?.confirmation_text as string);
