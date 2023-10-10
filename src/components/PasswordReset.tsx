@@ -2,7 +2,8 @@ import React, { useEffect } from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { supabase } from "../supabase";
 
-import { useLocation } from "react-router-dom";
+import pkg from "react-router-dom";
+const { useLocation } = pkg;
 
 const locale: I18nVariables = {
   sign_up: {
