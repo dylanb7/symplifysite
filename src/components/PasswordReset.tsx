@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { supabase } from "../supabase";
 
-import { useLocation } from "react-router-dom";
-
 const locale: I18nVariables = {
   sign_up: {
     email_label: "E-Mail Adresse",
@@ -49,18 +47,16 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-
-  const access_token = searchParams.get("access_token");
-  const refresh_token = searchParams.get("refresh_token");
-
   const [password, setPassword] = React.useState("");
   const [fieldError, setFieldError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   console.log("hi");
   const getUrlSesh = async () => {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const access_token = searchParams.get("access_token");
+    const refresh_token = searchParams.get("refresh_token");
     const sesh = await supabase.auth.getSession();
     if (sesh.data.session) return;
     console.log("hi");
@@ -84,7 +80,7 @@ export const SupaReset = () => {
 
   useEffect(() => {
     getUrlSesh();
-  }, [access_token, refresh_token]);
+  });
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
