@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import type { I18nVariables } from "@supabase/auth-ui-shared";
 import { supabase } from "../supabase";
 
-import { useParams, useSearchParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const locale: I18nVariables = {
   sign_up: {
@@ -49,7 +49,9 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
   const access_token = searchParams.get("access_token");
   const refresh_token = searchParams.get("refresh_token");
 
