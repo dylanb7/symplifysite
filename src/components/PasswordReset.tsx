@@ -79,7 +79,7 @@ export const SupaReset = () => {
           "" + access_token + refresh_token
       );
     };
-    j;
+
     getUrlSesh();
   });
 
