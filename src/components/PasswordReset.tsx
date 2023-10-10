@@ -47,7 +47,6 @@ const locale: I18nVariables = {
 };
 
 export const SupaReset = () => {
-  const [password, setPassword] = React.useState("");
   const [fieldError, setFieldError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -85,12 +84,23 @@ export const SupaReset = () => {
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFieldError("");
-    setMessage("");
+    const formData = new FormData(e.currentTarget);
+
+    const password = formData.get("password");
+    if (!password) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) setFieldError(error.message);
-    else setMessage(locale.update_password?.confirmation_text as string);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password!.toString(),
+      });
+      if (error) setFieldError(error.message);
+      else setMessage(locale.update_password?.confirmation_text as string);
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -128,9 +138,6 @@ export const SupaReset = () => {
             name="password"
             type="password"
             autoFocus
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setPassword(e.target.value)
-            }
             required
           />
         </label>
