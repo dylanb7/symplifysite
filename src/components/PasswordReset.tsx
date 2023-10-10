@@ -51,7 +51,6 @@ export const SupaReset = () => {
   const [fieldError, setFieldError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  console.log("hi");
 
   useEffect(() => {
     const getUrlSesh = async () => {
@@ -63,7 +62,6 @@ export const SupaReset = () => {
       const refresh_token = searchParams.get("refresh_token");
       const sesh = await supabase.auth.getSession();
       if (sesh.data.session) return;
-      console.log("hi");
       setFieldError((access_token ?? "") + (refresh_token ?? ""));
       if (!access_token || !refresh_token) {
         setFieldError([...searchParams.keys()].join(","));
@@ -81,8 +79,9 @@ export const SupaReset = () => {
           "" + access_token + refresh_token
       );
     };
+    j;
     getUrlSesh();
-  }, [window]);
+  });
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
