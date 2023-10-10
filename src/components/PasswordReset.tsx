@@ -52,33 +52,33 @@ export const SupaReset = () => {
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   console.log("hi");
-  const getUrlSesh = async () => {
-    const searchParams = new URLSearchParams(window.location.search);
-
-    const access_token = searchParams.get("access_token");
-    const refresh_token = searchParams.get("refresh_token");
-    const sesh = await supabase.auth.getSession();
-    if (sesh.data.session) return;
-    console.log("hi");
-    setFieldError((access_token ?? "") + (refresh_token ?? ""));
-    if (!access_token || !refresh_token) {
-      setFieldError([...searchParams.keys()].join(","));
-      return;
-    }
-
-    const val = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
-
-    setMessage(
-      val.error?.message ??
-        val.data.session?.access_token ??
-        "" + access_token + refresh_token
-    );
-  };
 
   useEffect(() => {
+    const getUrlSesh = async () => {
+      const searchParams = new URLSearchParams(window.location.search);
+
+      const access_token = searchParams.get("access_token");
+      const refresh_token = searchParams.get("refresh_token");
+      const sesh = await supabase.auth.getSession();
+      if (sesh.data.session) return;
+      console.log("hi");
+      setFieldError((access_token ?? "") + (refresh_token ?? ""));
+      if (!access_token || !refresh_token) {
+        setFieldError([...searchParams.keys()].join(","));
+        return;
+      }
+
+      const val = await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      });
+
+      setMessage(
+        val.error?.message ??
+          val.data.session?.access_token ??
+          "" + access_token + refresh_token
+      );
+    };
     getUrlSesh();
   }, [window]);
 
