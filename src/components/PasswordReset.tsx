@@ -80,7 +80,7 @@ export const SupaReset = () => {
 
   useEffect(() => {
     getUrlSesh();
-  });
+  }, [window]);
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
