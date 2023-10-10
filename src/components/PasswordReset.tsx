@@ -55,7 +55,9 @@ export const SupaReset = () => {
 
   useEffect(() => {
     const getUrlSesh = async () => {
-      const searchParams = new URLSearchParams(window.location.search);
+      const searchParams = window
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams();
 
       const access_token = searchParams.get("access_token");
       const refresh_token = searchParams.get("refresh_token");
