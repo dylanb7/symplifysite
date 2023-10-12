@@ -5,17 +5,14 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  ColumnDef,
-  ExpandedState,
+  type ColumnDef,
+  type ExpandedState,
   getExpandedRowModel,
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
-import {
-  DownloadTableExcel,
-  useDownloadExcel,
-} from "react-export-table-to-excel";
+import { useDownloadExcel } from "react-export-table-to-excel";
 
 dayjs.extend(LocalizedFormat);
 
