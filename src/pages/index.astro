@@ -1,21 +1,28 @@
 ---
+import { AuthComponent } from "../components/AuthComponent";
 import BaseHead from "../components/BaseHead.astro";
+import { CreateAccessCode } from "../components/CreateAccessCode";
 
 import Footer from "../components/Footer.astro";
-import { Home } from "../components/Home";
+import Layout from "../components/Layout.astro";
+import { PseudLookup } from "../components/PseudLookup";
 
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { accessTokenName, refreshTokenName } from "../utils/config";
+import { getUser } from "../utils/supabaseServer";
+
+const accessToken = Astro.cookies.get(accessTokenName)?.value
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value
+
+const userData = await getUser({ accessToken, refreshToken })
+const isLoggedIn = !!userData
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  </head>
-  <body>
-    <main>
-      <Home client:load />
-    </main>
-    <Footer />
-  </body>
-</html>
+
+
+
+<Layout title="Home" isLoggedIn={isLoggedIn}>
+    {isLoggedIn && <CreateAccessCode client:load/>}
+    {isLoggedIn && <PseudLookup client:load/>}
+    {!isLoggedIn && <AuthComponent client:only="react"/>}
+</Layout>

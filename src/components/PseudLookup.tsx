@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { supabase } from "../supabase";
+import { supabase } from "../utils/supabaseBrowser";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import {
   useReactTable,
