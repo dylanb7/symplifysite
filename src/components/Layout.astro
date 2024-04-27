@@ -1,14 +1,13 @@
 ---
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import BaseHead from './BaseHead.astro';
-import Footer from './Footer.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import BaseHead from "./BaseHead.astro";
+import Footer from "./Footer.astro";
 interface Props {
   title: string;
   isLoggedIn: boolean;
 }
 
 const { title, isLoggedIn } = Astro.props;
-
 ---
 
 <!DOCTYPE html>
@@ -20,39 +19,36 @@ const { title, isLoggedIn } = Astro.props;
     <main>
       <slot />
     </main>
+    <Footer />
+    <script>
+      import { supabase } from "../utils/supabaseBrowser";
+
+      import { accessTokenName, refreshTokenName } from "../utils/config";
+
+      const isLoggedIn = document.body.hasAttribute("data-logged-in");
+
+      supabase.auth.onAuthStateChange((event: string, session: any) => {
+        if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
+          // delete cookies on sign out
+          const expires = new Date(0).toUTCString();
+          document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
+          document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
+          if (isLoggedIn) {
+            location.reload();
+          }
+        } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          const maxAge = 5 * 60 * 60; //5 hours
+          document.cookie = `${accessTokenName}=${
+            session!.access_token
+          }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+          document.cookie = `${refreshTokenName}=${
+            session!.refresh_token
+          }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+          if (!isLoggedIn) {
+            location.reload();
+          }
+        }
+      });
+    </script>
   </body>
-  <Footer/>
 </html>
-
-
-<script>
-  
-  import {supabase} from "../utils/supabaseBrowser";
-
-  import { accessTokenName, refreshTokenName } from "../utils/config"; 
- 
-  const isLoggedIn = document.body.hasAttribute("data-logged-in");
-
-  supabase.auth.onAuthStateChange((event: string, session: any) => {
-    if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
-      // delete cookies on sign out
-      const expires = new Date(0).toUTCString();
-      document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
-      document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
-      if (isLoggedIn) {
-        location.reload();
-      }
-    } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-      const maxAge = 24 * 60 * 60; // 100 years, never expires
-      document.cookie = `${accessTokenName}=${
-        session!.access_token
-      }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
-      document.cookie = `${refreshTokenName}=${
-        session!.refresh_token
-      }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
-      if (!isLoggedIn) {
-        location.reload();
-      }
-    }
-  });
-</script>
