@@ -13,20 +13,11 @@ type FormText = {
   error?: string;
 };
 
-const { access_token, refresh_token } = Astro.params;
-
 const formText: FormText = {
   buttonText: locale.update_password?.button_label ?? "Submit",
   confirm: undefined,
   error: undefined,
 };
-
-if (access_token && refresh_token) {
-  supabase.auth.setSession({
-    access_token,
-    refresh_token,
-  });
-}
 
 if (Astro.request.method === "POST") {
   try {
@@ -82,8 +73,6 @@ if (Astro.request.method === "POST") {
           flexDirection: "column",
         }}
       >
-        {access_token}
-        {refresh_token}
         {locale.update_password?.password_label}
         <input id="password" name="password" type="password" required />
       </label>
@@ -106,3 +95,14 @@ if (Astro.request.method === "POST") {
     </form>
   </div>
 </Layout>
+<script>
+  import { supabase } from "../utils/supabaseBrowser";
+  const params = new URL(location.href).searchParams;
+  const access_token = params.get("access_token");
+  const refresh_token = params.get("refresh_token");
+  if (access_token && refresh_token)
+    supabase.auth.setSession({
+      access_token,
+      refresh_token,
+    });
+</script>
