@@ -19,29 +19,30 @@ const formText: FormText = {
   error: undefined,
 };
 
-const accessToken = Astro.cookies.get(accessTokenName)?.value;
-const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
-
-if (accessToken && refreshToken) {
-  const { error } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
-
-  if (error) {
-    Astro.cookies.delete(accessTokenName, {
-      path: "/",
-    });
-    Astro.cookies.delete(refreshTokenName, {
-      path: "/",
-    });
-  }
-}
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
 
     const password = data.get("password");
+
+    const accessToken = Astro.cookies.get(accessTokenName)?.value;
+    const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
+
+    if (accessToken && refreshToken) {
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      if (error) {
+        Astro.cookies.delete(accessTokenName, {
+          path: "/",
+        });
+        Astro.cookies.delete(refreshTokenName, {
+          path: "/",
+        });
+      }
+    }
 
     if (typeof password === "string") {
       formText.buttonText =
