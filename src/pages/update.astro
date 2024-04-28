@@ -2,11 +2,8 @@
 import Layout from "../components/Layout.astro";
 
 import { locale } from "../utils/locale";
-import { accessTokenName, refreshTokenName } from "../utils/config";
-import { supabase } from "../utils/supabaseBrowser";
 
-const accessToken = Astro.cookies.get(accessTokenName)?.value;
-const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
+import { supabase } from "../utils/supabaseBrowser";
 
 type FormText = {
   buttonText: string;

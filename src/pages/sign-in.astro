@@ -8,8 +8,6 @@ const refreshToken = cookies.get("sb-refresh-token");
 if (accessToken && refreshToken) {
   return redirect("/");
 }
-
-const error = Response;
 ---
 
 <Layout title="update">
@@ -61,7 +59,7 @@ const error = Response;
           required
         />
       </label>
-      {error && <p>{error}</p>}
+
       <button
         style={{
           backgroundColor: "var(--accent)",
