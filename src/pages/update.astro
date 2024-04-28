@@ -3,13 +3,10 @@ import Layout from "../components/Layout.astro";
 
 import { locale } from "../utils/locale";
 import { accessTokenName, refreshTokenName } from "../utils/config";
-import { getUser, supabase } from "../utils/supabaseServer";
+import { supabase } from "../utils/supabaseServer";
 
 const accessToken = Astro.cookies.get(accessTokenName)?.value;
 const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
-
-const userData = await getUser({ accessToken, refreshToken });
-const isLoggedIn = !!userData;
 
 type FormText = {
   buttonText: string;
@@ -22,6 +19,13 @@ const formText: FormText = {
   confirm: undefined,
   error: undefined,
 };
+
+if (accessToken && refreshToken) {
+  supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+}
 
 if (Astro.request.method === "POST") {
   try {
@@ -44,13 +48,14 @@ if (Astro.request.method === "POST") {
     }
   } catch (error) {
     if (error instanceof Error) {
+      formText.error = error.message;
       console.error(error.message);
     }
   }
 }
 ---
 
-<Layout title="update" isLoggedIn={isLoggedIn}>
+<Layout title="update">
   <div
     style={{
       display: "flex",

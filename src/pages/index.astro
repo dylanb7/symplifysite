@@ -1,28 +1,37 @@
 ---
-import { AuthComponent } from "../components/AuthComponent";
-import BaseHead from "../components/BaseHead.astro";
+import { redirect } from "react-router-dom";
 import { CreateAccessCode } from "../components/CreateAccessCode";
-
-import Footer from "../components/Footer.astro";
 import Layout from "../components/Layout.astro";
 import { PseudLookup } from "../components/PseudLookup";
 
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import { accessTokenName, refreshTokenName } from "../utils/config";
-import { getUser } from "../utils/supabaseServer";
+import { supabase } from "../utils/supabaseBrowser";
 
-const accessToken = Astro.cookies.get(accessTokenName)?.value
-const refreshToken = Astro.cookies.get(refreshTokenName)?.value
+const accessToken = Astro.cookies.get(accessTokenName)?.value;
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
 
-const userData = await getUser({ accessToken, refreshToken })
-const isLoggedIn = !!userData
+if (!accessToken || !refreshToken) {
+  return redirect("/sign-in");
+}
+
+const { data, error } = await supabase.auth.setSession({
+  access_token: accessToken,
+  refresh_token: refreshToken,
+});
+
+if (error) {
+  Astro.cookies.delete(accessTokenName, {
+    path: "/",
+  });
+  Astro.cookies.delete(refreshTokenName, {
+    path: "/",
+  });
+
+  return redirect("/signin");
+}
 ---
 
-
-
-
-<Layout title="Home" isLoggedIn={isLoggedIn}>
-    {isLoggedIn && <CreateAccessCode client:load/>}
-    {isLoggedIn && <PseudLookup client:load/>}
-    {!isLoggedIn && <AuthComponent client:only="react"/>}
+<Layout title="Home">
+  <CreateAccessCode client:load />
+  <PseudLookup client:load />
 </Layout>
