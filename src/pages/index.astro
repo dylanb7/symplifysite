@@ -14,10 +14,12 @@ if (!accessToken || !refreshToken) {
   return redirect("/sign-in");
 }
 
-const { error } = await supabase.auth.setSession({
+const { data, error } = await supabase.auth.setSession({
   access_token: accessToken,
   refresh_token: refreshToken,
 });
+
+const isLoggedIn = !!error;
 
 if (error) {
   Astro.cookies.delete(accessTokenName, {
@@ -31,7 +33,7 @@ if (error) {
 }
 ---
 
-<Layout title="Home">
+<Layout title="Home" isLoggedIn>
   <CreateAccessCode client:load />
   <PseudLookup client:load />
 </Layout>
