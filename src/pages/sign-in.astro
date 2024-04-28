@@ -1,9 +1,10 @@
 ---
 import Layout from "../components/Layout.astro";
+import { accessTokenName, refreshTokenName } from "../utils/config";
 const { cookies, redirect } = Astro;
 
-const accessToken = cookies.get("sb-access-token");
-const refreshToken = cookies.get("sb-refresh-token");
+const accessToken = cookies.get(accessTokenName);
+const refreshToken = cookies.get(refreshTokenName);
 
 if (accessToken && refreshToken) {
   return redirect("/");

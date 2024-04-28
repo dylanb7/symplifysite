@@ -19,6 +19,24 @@ const formText: FormText = {
   error: undefined,
 };
 
+const accessToken = Astro.cookies.get(accessTokenName)?.value;
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
+
+if (accessToken && refreshToken) {
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (error) {
+    Astro.cookies.delete(accessTokenName, {
+      path: "/",
+    });
+    Astro.cookies.delete(refreshTokenName, {
+      path: "/",
+    });
+  }
+}
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
@@ -96,13 +114,23 @@ if (Astro.request.method === "POST") {
   </div>
 </Layout>
 <script>
+  import { accessTokenName, refreshTokenName } from "../utils/config";
   import { supabase } from "../utils/supabaseBrowser";
   const params = new URL(location.href).searchParams;
   const access_token = params.get("access_token");
   const refresh_token = params.get("refresh_token");
-  if (access_token && refresh_token)
-    supabase.auth.setSession({
+  if (access_token && refresh_token) {
+    const { error } = await supabase.auth.setSession({
       access_token,
       refresh_token,
     });
+    if (!error) {
+      Astro.cookies.set(accessTokenName, access_token, {
+        path: "/",
+      });
+      Astro.cookies.set(refreshTokenName, refresh_token, {
+        path: "/",
+      });
+    }
+  }
 </script>
