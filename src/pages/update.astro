@@ -82,6 +82,8 @@ if (Astro.request.method === "POST") {
           flexDirection: "column",
         }}
       >
+        {access_token}
+        {refresh_token}
         {locale.update_password?.password_label}
         <input id="password" name="password" type="password" required />
       </label>
