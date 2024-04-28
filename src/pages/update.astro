@@ -1,5 +1,7 @@
 ---
+import { redirect } from "react-router-dom";
 import Layout from "../components/Layout.astro";
+import { accessTokenName, refreshTokenName } from "../utils/config";
 
 import { locale } from "../utils/locale";
 
@@ -25,6 +27,32 @@ if (access_token && refresh_token) {
     refresh_token,
   });
 }
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+
+    const password = data.get("password");
+
+    if (typeof password === "string") {
+      formText.buttonText =
+        locale.update_password?.loading_button_label ?? "Loading";
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
+      formText.buttonText = locale.update_password?.button_label ?? "Submit";
+      if (error) {
+        formText.error = error.message;
+      } else {
+        return Astro.redirect("/updated");
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
 ---
 
 <Layout title="update">
@@ -36,7 +64,6 @@ if (access_token && refresh_token) {
     }}
   >
     <form
-      action="/api/auth/update-password"
       method="post"
       style={{
         boxShadow: "1px 1px 3px #ccc",
