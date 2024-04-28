@@ -14,7 +14,7 @@ if (!accessToken || !refreshToken) {
   return redirect("/sign-in");
 }
 
-const { data, error } = await supabase.auth.setSession({
+const { error } = await supabase.auth.setSession({
   access_token: accessToken,
   refresh_token: refreshToken,
 });

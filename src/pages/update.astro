@@ -3,7 +3,7 @@ import Layout from "../components/Layout.astro";
 
 import { locale } from "../utils/locale";
 import { accessTokenName, refreshTokenName } from "../utils/config";
-import { supabase } from "../utils/supabaseServer";
+import { supabase } from "../utils/supabaseBrowser";
 
 const accessToken = Astro.cookies.get(accessTokenName)?.value;
 const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
@@ -14,44 +14,19 @@ type FormText = {
   error?: string;
 };
 
+const { access_token, refresh_token } = Astro.params;
+
 const formText: FormText = {
   buttonText: locale.update_password?.button_label ?? "Submit",
   confirm: undefined,
   error: undefined,
 };
 
-if (accessToken && refreshToken) {
+if (access_token && refresh_token) {
   supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
+    access_token,
+    refresh_token,
   });
-}
-
-if (Astro.request.method === "POST") {
-  try {
-    const data = await Astro.request.formData();
-
-    const password = data.get("password");
-
-    if (typeof password === "string") {
-      formText.buttonText =
-        locale.update_password?.loading_button_label ?? "Loading";
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
-      formText.buttonText = locale.update_password?.button_label ?? "Submit";
-      if (error) {
-        formText.error = error.message;
-      } else {
-        formText.confirm = locale.update_password?.confirmation_text;
-      }
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      formText.error = error.message;
-      console.error(error.message);
-    }
-  }
 }
 ---
 
