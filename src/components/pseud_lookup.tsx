@@ -13,7 +13,7 @@ import {
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import { useDownloadExcel } from "react-export-table-to-excel";
-import { useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 dayjs.extend(LocalizedFormat);
 
@@ -259,7 +259,7 @@ const durationFormat = (duration: number) => {
 
 const getDetails = (
   detailPart: detailPartialResponse[],
-  allNon: noDetailResponse[]
+  allNon: noDetailResponse[],
 ): detailPairing => {
   const toPair: noDetailResponse[] = [];
   const non: noDetailResponse[] = [];
@@ -295,7 +295,6 @@ function parseRes<T>(res: PostgrestSingleResponse<T>): T | string {
 }
 
 export const PseudLookup: React.FC = () => {
-
   const supabase = useSupabaseClient();
 
   const [pseud, setPseud] = useState("");
@@ -303,7 +302,7 @@ export const PseudLookup: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const [pseudData, setPseudData] = useState<pseudonymData | undefined>(
-    undefined
+    undefined,
   );
 
   const submit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -525,7 +524,7 @@ const TestsTable: React.FC<{
         footer: (props) => props.column.id,
       },
     ],
-    [prettyDates]
+    [prettyDates],
   );
 
   const table = useReactTable({
@@ -587,7 +586,7 @@ const TestsTable: React.FC<{
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </th>
               ))}
@@ -704,19 +703,21 @@ const DetailResponsesTable: React.FC<{
               row.selected
             );
           const question = questionSet[row.qid];
-          
+
           if (row.response) return row.response;
           if (row.numeric_response) return row.numeric_response;
-          if (row.selected) return question?.choices[row.selected];
+          if (row.selected) return (question as multi)?.choices[row.selected];
           if (row.all_selected) {
             const indices = row.all_selected.split(",");
-            return indices.map((e) => question.choices[e]).join(", ");
+            return indices
+              .map((e) => (question as all)?.choices[Number(e)])
+              .join(", ");
           }
           return null;
         },
       },
     ],
-    [prettyDates, formatRes]
+    [prettyDates, formatRes],
   );
 
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -791,7 +792,7 @@ const DetailResponsesTable: React.FC<{
                       <div>
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                       </div>
                     )}
@@ -810,7 +811,7 @@ const DetailResponsesTable: React.FC<{
                     <td key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   );
@@ -863,16 +864,18 @@ const ResponsesTable: React.FC<{
           const question = questionSet[row.qid];
           if (row.response) return row.response;
           if (row.numeric_response) return row.numeric_response;
-          if (row.selected) return question.choices[row.selected];
+          if (row.selected) return (question as multi).choices[row.selected];
           if (row.all_selected) {
             const indices = row.all_selected.split(",");
-            return indices.map((e) => question.choices[e]).join(", ");
+            return indices
+              .map((e) => (question as all).choices[Number(e)])
+              .join(", ");
           }
           return null;
         },
       },
     ],
-    [prettyDates, formatRes]
+    [prettyDates, formatRes],
   );
 
   const table = useReactTable({
@@ -934,7 +937,7 @@ const ResponsesTable: React.FC<{
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </th>
               ))}
@@ -961,7 +964,7 @@ const ResponsesTable: React.FC<{
                     ? null
                     : flexRender(
                         header.column.columnDef.footer,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </th>
               ))}
