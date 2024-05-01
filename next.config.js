@@ -7,6 +7,7 @@ await import("./src/env.js");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: "export",
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
