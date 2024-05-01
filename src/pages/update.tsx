@@ -5,10 +5,9 @@ import { createClient } from "~/utils/supabase/component";
 
 const UpdatePassword: NextPage = async () => {
   const supabaseClient = createClient();
-  const {
-    data: { user },
-  } = await supabaseClient.auth.getUser();
-  if (!user) {
+  const { data } = await supabaseClient.auth.refreshSession();
+
+  if (!data.user) {
     return (
       <main className="mt-20 flex h-full w-full flex-col items-center justify-center">
         <Auth
