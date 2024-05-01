@@ -1,24 +1,26 @@
-import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'
-import { Auth  } from '@supabase/auth-ui-react'
-import { minimal } from '@supabase/auth-ui-shared'
-import type { NextPage } from 'next'
+import { Auth } from "@supabase/auth-ui-react";
+import { minimal } from "@supabase/auth-ui-shared";
+import type { NextPage } from "next";
+import { createClient } from "~/utils/supabase/component";
 
-const LoginPage: NextPage = () => {
-  const supabaseClient = useSupabaseClient()
-  const user = useUser()
+const LoginPage: NextPage = async () => {
+  const supabaseClient = createClient();
+  const {
+    data: { user },
+  } = await supabaseClient.auth.getUser();
 
   if (!user) {
     return (
-      <main className="w-full h-full flex flex-col items-center justify-center mt-20">
+      <main className="mt-20 flex h-full w-full flex-col items-center justify-center">
         <Auth
           showLinks={false}
           providers={[]}
-          appearance={{theme: { default: minimal }}}
+          appearance={{ theme: { default: minimal } }}
           supabaseClient={supabaseClient}
-          view={'sign_in'}
+          view={"sign_in"}
         />
       </main>
-    )
+    );
   }
 
   return (
@@ -27,7 +29,7 @@ const LoginPage: NextPage = () => {
       <p>user:</p>
       <pre>{JSON.stringify(user, null, 2)}</pre>
     </>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

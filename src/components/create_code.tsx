@@ -2,14 +2,14 @@ import { useState } from "react";
 
 import React from "react";
 import cryptoRandomString from "crypto-random-string";
-import { useSupabaseClient } from '@supabase/auth-helpers-react'
+import { createClient } from "~/utils/supabase/component";
 
 export const CreateAccessCode = () => {
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
   const [currentCode, setCode] = useState("");
   const [error, setError] = useState("");
 
-  const genCode = async  () => {
+  const genCode = async () => {
     const code = cryptoRandomString({ length: 6, type: "alphanumeric" });
     const ret = await supabase.from("codes").insert({ value: code });
     if (!ret.error) {
@@ -19,9 +19,7 @@ export const CreateAccessCode = () => {
       setError(ret.error.message);
       setCode("");
     }
-   
   };
-
 
   return (
     <div

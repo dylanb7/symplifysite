@@ -13,7 +13,7 @@ import {
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import { useDownloadExcel } from "react-export-table-to-excel";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createClient } from "~/utils/supabase/component";
 
 dayjs.extend(LocalizedFormat);
 
@@ -295,7 +295,7 @@ function parseRes<T>(res: PostgrestSingleResponse<T>): T | string {
 }
 
 export const PseudLookup: React.FC = () => {
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
 
   const [pseud, setPseud] = useState("");
 
