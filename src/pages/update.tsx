@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { type NextPage } from "next";
 
 import { useForm } from "react-hook-form";
@@ -16,6 +17,7 @@ import { createClient } from "~/utils/supabase/component";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   password: z.string().min(0),
@@ -24,9 +26,16 @@ const formSchema = z.object({
 const UpdatePassword: NextPage = () => {
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     const refreshSession = async () => {
-      await supabaseClient.auth.refreshSession();
+      const token = searchParams.get("refresh_token");
+      if (token) {
+        await supabaseClient.auth.refreshSession({
+          refresh_token: token,
+        });
+      }
     };
     void refreshSession();
   }, [supabaseClient]);
