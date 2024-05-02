@@ -3,15 +3,22 @@ import { useState } from "react";
 import React from "react";
 import cryptoRandomString from "crypto-random-string";
 import { createClient } from "~/utils/supabase/component";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Label } from "./ui/label";
+import { LoadingSpinner } from "./loading-spinner";
 
 export const CreateAccessCode = () => {
   const supabase = createClient();
   const [currentCode, setCode] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const genCode = async () => {
+    setLoading(true);
     const code = cryptoRandomString({ length: 6, type: "alphanumeric" });
     const ret = await supabase.from("codes").insert({ value: code });
+    setLoading(false);
     if (!ret.error) {
       setCode(code);
       setError("");
@@ -22,50 +29,23 @@ export const CreateAccessCode = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "start",
-        alignItems: "start",
-        gap: "1rem",
-        padding: "20px",
-        boxShadow: "1px 1px 3px #ccc",
-        backgroundColor: "#e5e9f0",
-        borderRadius: "8px",
-        marginBottom: "2rem",
-      }}
-    >
-      <h5>Access Code/Pseudonym</h5>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "start",
-          alignItems: "start",
-          gap: "1rem",
-        }}
-      >
-        <button
+    <Card>
+      <CardHeader>
+        <CardTitle>Access Code/Pseudonym</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Button
           onClick={(e) => {
             e.preventDefault();
             void genCode();
           }}
-          style={{
-            backgroundColor: "var(--accent)",
-            border: "none",
-            padding: "6px 10px",
-            fontSize: "large",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: "6px",
-          }}
         >
           Generate Code
-        </button>
-        {currentCode && <h4>{currentCode}</h4>}
-        {error && <p>{error}</p>}
-      </div>
-    </div>
+        </Button>
+        {loading && <LoadingSpinner />}
+        {!loading && currentCode && <Label>{currentCode}</Label>}
+        {!loading && error && <Label className="text-red-600">{error}</Label>}
+      </CardContent>
+    </Card>
   );
 };

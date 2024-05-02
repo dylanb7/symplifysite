@@ -14,6 +14,11 @@ import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import { createClient } from "~/utils/supabase/component";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { LoadingSpinner } from "./loading-spinner";
+import { Separator } from "./ui/separator";
 
 dayjs.extend(LocalizedFormat);
 
@@ -343,65 +348,35 @@ export const PseudLookup: React.FC = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          padding: "20px",
-          boxShadow: "1px 1px 3px #ccc",
-          backgroundColor: "#e5e9f0",
-          borderRadius: "8px",
-        }}
-      >
-        <hr />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "1rem",
-            alignItems: "end",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
+    <Card style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <CardHeader className="flex-flex-col gap-2">
+        <CardTitle>Pseudonym Lookup</CardTitle>
+        <div className="flex flex-row gap-2">
+          <Input
+            type="text"
+            name="pseudonym"
+            onChange={(e) => {
+              setPseud(e.currentTarget.value);
             }}
-          >
-            <h5>Pseudonym Lookup:</h5>
-            <input
-              type="text"
-              name="pseudonym"
-              onChange={(e) => {
-                setPseud(e.currentTarget.value);
-              }}
-              placeholder="Enter Pseudonym"
-              required
-            />
-          </div>
+            placeholder="Enter Pseudonym"
+            required
+          />
           {!loading ? (
-            <button
-              style={{
-                backgroundColor: "var(--accent)",
-                border: "none",
-                padding: "6px 10px",
-                fontSize: "large",
-                color: "white",
-                cursor: "pointer",
-                borderRadius: "6px",
-              }}
-              onClick={(e) => submit(e)}
-            >
-              Lookup
-            </button>
+            <Button onClick={(e) => submit(e)}>Lookup</Button>
           ) : (
-            <h5>Loading...</h5>
+            <LoadingSpinner />
           )}
         </div>
-      </div>
-      {pseudData && <EntryDisplay data={pseudData} />}
-    </div>
+      </CardHeader>
+      <CardContent>
+        {pseudData && (
+          <>
+            <Separator />
+            <EntryDisplay data={pseudData} />
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
@@ -561,20 +536,7 @@ const TestsTable: React.FC<{
       >
         <h5>Tests</h5>
 
-        <button
-          style={{
-            backgroundColor: "var(--accent)",
-            border: "none",
-            padding: "6px 10px",
-            fontSize: "large",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: "6px",
-          }}
-          onClick={onDownload}
-        >
-          Export
-        </button>
+        <Button onClick={onDownload}>Export</Button>
       </div>
       <table ref={ref}>
         <thead>
@@ -766,20 +728,7 @@ const DetailResponsesTable: React.FC<{
       >
         <h5>Detail Responses</h5>
 
-        <button
-          style={{
-            backgroundColor: "var(--accent)",
-            border: "none",
-            padding: "6px 10px",
-            fontSize: "large",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: "6px",
-          }}
-          onClick={onDownload}
-        >
-          Export
-        </button>
+        <Button onClick={onDownload}>Export</Button>
       </div>
       <table ref={ref}>
         <thead>
@@ -912,7 +861,7 @@ const ResponsesTable: React.FC<{
       >
         <h5>Single Responses</h5>
 
-        <button
+        <Button
           style={{
             backgroundColor: "var(--accent)",
             border: "none",
@@ -925,7 +874,7 @@ const ResponsesTable: React.FC<{
           onClick={onDownload}
         >
           Export
-        </button>
+        </Button>
       </div>
       <table ref={ref}>
         <thead>

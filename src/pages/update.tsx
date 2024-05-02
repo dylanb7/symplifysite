@@ -17,15 +17,16 @@ import { createClient } from "~/utils/supabase/component";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
-import { useCookies } from "react-cookie";
-import { useSearchParams } from "next/navigation";
+
+import { useRouter } from "next/router";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword: NextPage = () => {
-  const params = useSearchParams();
+  const { asPath } = useRouter();
+
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -39,11 +40,15 @@ const UpdatePassword: NextPage = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const refresh = params.get("refresh_token");
-    const access = params.get("access_token");
+    console.log(window.location.href);
+    const query = asPath?.split("#")?.at(1) ?? [];
+    const params = Object.fromEntries(new URLSearchParams(query));
 
-    console.log(refresh);
-    console.log(access);
+    const refresh = params.refresh_token;
+    const access = params.access_token;
+
+    console.log(values);
+
     if (refresh && access) {
       await supabaseClient.auth.setSession({
         access_token: access,
@@ -70,11 +75,11 @@ const UpdatePassword: NextPage = () => {
             <FormField
               control={form.control}
               name="password"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Ihr neus Passwort</FormLabel>
                   <FormControl>
-                    <Input type="password" />
+                    <Input type="password" {...field} />
                   </FormControl>
                 </FormItem>
               )}
