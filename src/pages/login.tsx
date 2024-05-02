@@ -49,7 +49,6 @@ const LoginPage: NextPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    console.log(values);
     const { error } = await supabaseClient.auth.signInWithPassword({
       email: values.email,
       password: values.password,

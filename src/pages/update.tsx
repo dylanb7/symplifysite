@@ -40,14 +40,11 @@ const UpdatePassword: NextPage = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    console.log(window.location.href);
     const query = asPath?.split("#")?.at(1) ?? [];
     const params = Object.fromEntries(new URLSearchParams(query));
 
     const refresh = params.refresh_token;
     const access = params.access_token;
-
-    console.log(values);
 
     if (refresh && access) {
       await supabaseClient.auth.setSession({
