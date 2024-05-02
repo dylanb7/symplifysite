@@ -18,27 +18,17 @@ import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
 import { useSearchParams } from "next/navigation";
+import { cookies } from "next/headers";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword: NextPage = () => {
+  const cookieStore = cookies();
+
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const refreshSession = async () => {
-      const token = searchParams.get("refresh_token");
-      if (token) {
-        await supabaseClient.auth.refreshSession({
-          refresh_token: token,
-        });
-      }
-    };
-    void refreshSession();
-  }, [supabaseClient]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,6 +39,12 @@ const UpdatePassword: NextPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+    const refresh = cookieStore.get("refresh_token");
+    if (refresh) {
+      await supabaseClient.auth.refreshSession({
+        refresh_token: refresh?.value,
+      });
+    }
     const { error } = await supabaseClient.auth.updateUser({
       password: values.password,
     });
