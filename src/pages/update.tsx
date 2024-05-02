@@ -18,16 +18,14 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
 import { useCookies } from "react-cookie";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword: NextPage = () => {
-  const [cookie] = useCookies([
-    "striped-refresh-token",
-    "striped-access-token",
-  ]);
+  const params = useSearchParams();
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -40,13 +38,10 @@ const UpdatePassword: NextPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    console.log(cookie);
-    const refresh = cookie["striped-refresh-token"]
-      ? (cookie["striped-refresh-token"] as "string")
-      : undefined;
-    const access = cookie["striped-access-token"]
-      ? (cookie["striped-access-token"] as "string")
-      : undefined;
+
+    const refresh = params.get("refresh_token");
+    const access = params.get("access_token");
+
     console.log(refresh);
     console.log(access);
     if (refresh && access) {
