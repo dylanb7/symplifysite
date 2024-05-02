@@ -24,7 +24,7 @@ const formSchema = z.object({
 });
 
 const UpdatePassword: NextPage = () => {
-  const [cookie] = useCookies(["refresh_token"]);
+  const [cookie] = useCookies(["refresh_token", "access_token"]);
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -40,8 +40,14 @@ const UpdatePassword: NextPage = () => {
     const refresh = cookie.refresh_token
       ? (cookie.refresh_token as "string")
       : undefined;
-    if (refresh) {
-      await supabaseClient.auth.refreshSession({
+    const access = cookie.access_token
+      ? (cookie.access_token as "string")
+      : undefined;
+    console.log(refresh);
+    console.log(access);
+    if (refresh && access) {
+      await supabaseClient.auth.setSession({
+        access_token: access,
         refresh_token: refresh,
       });
     }
