@@ -40,6 +40,7 @@ const UpdatePassword: NextPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+    console.log(cookie);
     const refresh = cookie["striped-refresh-token"]
       ? (cookie["striped-refresh-token"] as "string")
       : undefined;
