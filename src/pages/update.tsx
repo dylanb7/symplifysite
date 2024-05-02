@@ -14,19 +14,17 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { createClient } from "~/utils/supabase/component";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
-import { useSearchParams } from "next/navigation";
-import { cookies } from "next/headers";
+import { useCookies } from "react-cookie";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword: NextPage = () => {
-  const cookieStore = cookies();
-
+  const [cookie] = useCookies(["refresh_token"]);
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -39,10 +37,12 @@ const UpdatePassword: NextPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const refresh = cookieStore.get("refresh_token");
+    const refresh = cookie.refresh_token
+      ? (cookie.refresh_token as "string")
+      : undefined;
     if (refresh) {
       await supabaseClient.auth.refreshSession({
-        refresh_token: refresh?.value,
+        refresh_token: refresh,
       });
     }
     const { error } = await supabaseClient.auth.updateUser({
