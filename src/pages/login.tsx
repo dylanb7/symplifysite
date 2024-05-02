@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { type UserResponse } from "@supabase/supabase-js";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -69,9 +70,9 @@ const LoginPage: NextPage = () => {
     if (!currentUser) {
       void getUser();
     }
-  }, [supabaseClient.auth]);
+  }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <div role="status" className="flex h-screen items-center justify-center">
         <svg
@@ -93,6 +94,7 @@ const LoginPage: NextPage = () => {
         <span className="sr-only">Loading...</span>
       </div>
     );
+  }
 
   if (mounted && currentUser?.data.user) {
     toast({ description: "Already logged in" });
