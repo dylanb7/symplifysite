@@ -24,7 +24,10 @@ const formSchema = z.object({
 });
 
 const UpdatePassword: NextPage = () => {
-  const [cookie] = useCookies(["refresh_token", "access_token"]);
+  const [cookie] = useCookies([
+    "striped-refresh-token",
+    "striped-access-token",
+  ]);
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -37,11 +40,11 @@ const UpdatePassword: NextPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const refresh = cookie.refresh_token
-      ? (cookie.refresh_token as "string")
+    const refresh = cookie["striped-refresh-token"]
+      ? (cookie["striped-refresh-token"] as "string")
       : undefined;
-    const access = cookie.access_token
-      ? (cookie.access_token as "string")
+    const access = cookie["striped-access-token"]
+      ? (cookie["striped-access-token"] as "string")
       : undefined;
     console.log(refresh);
     console.log(access);
