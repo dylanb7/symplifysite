@@ -8,6 +8,7 @@ import { useEffect } from "react";
 
 import { useRouter } from "next/router";
 import { createClient } from "~/utils/supabase/component";
+import { Toaster } from "~/components/ui/toaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <div className={`flex-1 ${inter.className}`}>
       <Component {...pageProps} />
+      <Toaster />
     </div>
   );
 };

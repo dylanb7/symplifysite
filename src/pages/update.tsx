@@ -1,70 +1,84 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { minimal, type I18nVariables } from "@supabase/auth-ui-shared";
 import { type NextPage } from "next";
+
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { createClient } from "~/utils/supabase/component";
+import { useEffect, useState } from "react";
+import { Button } from "~/components/ui/button";
+import { toast } from "~/components/ui/use-toast";
 
-const UpdatePassword: NextPage = async () => {
+const formSchema = z.object({
+  password: z.string().min(0),
+});
+
+const UpdatePassword: NextPage = () => {
   const supabaseClient = createClient();
-  const { data } = await supabaseClient.auth.refreshSession();
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const refreshSession = async () => {
+      await supabaseClient.auth.refreshSession();
+    };
+    void refreshSession();
+  }, [supabaseClient]);
 
-  if (!data.user) {
-    return (
-      <main className="mt-20 flex h-full w-full flex-col items-center justify-center">
-        <Auth
-          showLinks={false}
-          providers={[]}
-          appearance={{ theme: { default: minimal } }}
-          supabaseClient={supabaseClient}
-          localization={{ variables: locale }}
-          view={"update_password"}
-        />
-      </main>
-    );
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
+    const { error } = await supabaseClient.auth.updateUser({
+      password: values.password,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: error.message });
+    } else {
+      toast({ title: "✅" });
+    }
   }
-  return <div>{locale?.update_password?.confirmation_text ?? ""}</div>;
-};
-const locale: I18nVariables = {
-  sign_up: {
-    email_label: "E-Mail Adresse",
-    password_label: "Passwort erstellen",
-    email_input_placeholder: "Ihre E-Mail Adresse",
-    password_input_placeholder: "Ihr Passwort",
-    button_label: "Registrieren",
-    loading_button_label: "Registrieren ...",
-    social_provider_text: "Anmelden mit {{provider}}",
-    link_text: "Haben Sie noch kein Konto? Registrieren",
-  },
-  sign_in: {
-    email_label: "E-Mail Adresse",
-    password_label: "Passwort erstellen",
-    email_input_placeholder: "Ihre E-Mail Adresse",
-    password_input_placeholder: "Ihr Passwort",
-    button_label: "Anmelden",
-    loading_button_label: "Anmelden ...",
-    social_provider_text: "Anmelden mit {{provider}}",
-    link_text: "Haben Sie bereits ein Konto? Anmelden",
-  },
-  magic_link: {
-    email_input_label: "E-Mail Adresse",
-    email_input_placeholder: "Ihre E-Mail Adresse",
-    button_label: "Magischen Link senden",
-    loading_button_label: "Magischen Link senden ...",
-    link_text: "Einen magischen Link per E-Mail versenden",
-  },
-  forgotten_password: {
-    email_label: "E-Mail Adresse",
-    password_label: "Ihr Passwort",
-    email_input_placeholder: "Ihre E-Mail Adresse",
-    button_label: "Anweisungen zum Zurücksetzen des Passworts senden",
-    loading_button_label: "Anweisungen zum Zurücksetzen senden ...",
-    link_text: "Passwort vergessen?",
-  },
-  update_password: {
-    password_label: "Neues Passwort",
-    password_input_placeholder: "Ihr neues Passwort",
-    button_label: "Passwort aktualisieren",
-    loading_button_label: "Passwort aktualisieren ...",
-  },
+
+  return (
+    <main className="mt-20 flex h-full w-full flex-col items-center justify-center">
+      <div className="mx-auto flex max-w-lg flex-col items-start justify-start gap-2">
+        <Label className="text-2xl">Neues Passwort</Label>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-8">
+            <FormField
+              control={form.control}
+              name="password"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Ihr neus Passwort</FormLabel>
+                  <FormControl>
+                    <Input type="password" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button type="submit">
+              {loading
+                ? "Passwort aktualisieren ..."
+                : "Passwort aktualisieren"}
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </main>
+  );
 };
 
 export default UpdatePassword;
