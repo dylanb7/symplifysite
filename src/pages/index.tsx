@@ -1,4 +1,4 @@
-import { type UserResponse } from "@supabase/supabase-js";
+import { type UserResponse } from "@supabase/auth-js";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";

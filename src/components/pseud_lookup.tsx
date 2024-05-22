@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import React, { useMemo, useRef, useState } from "react";
-import type { PostgrestSingleResponse } from "@supabase/supabase-js";
+
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,6 +10,7 @@ import {
   getExpandedRowModel,
   getFilteredRowModel,
 } from "@tanstack/react-table";
+
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import { useDownloadExcel } from "react-export-table-to-excel";
@@ -295,7 +296,11 @@ const getDetails = (
   };
 };
 
-function parseRes<T>(res: PostgrestSingleResponse<T>): T | string {
+function parseRes<T>(res: {
+  error: { message: string | T };
+  data: string | T;
+}): T | string {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   return res.error ? res.error.message : res.data;
 }
 

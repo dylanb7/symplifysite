@@ -1,3 +1,4 @@
+"use server";
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -13,17 +14,15 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { createClient } from "~/utils/supabase/component";
-import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
+import { useState } from "react";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword = () => {
-  const [supabaseClient] = useState(() => createClient());
   const [loading, setLoading] = useState(false);
 
   /*const setSession = useCallback(async () => {
@@ -32,13 +31,6 @@ const UpdatePassword = () => {
       await supabaseClient.auth.setSession();
     }
   }, []);*/
-
-  useEffect(() => {
-    const sub = supabaseClient.auth.onAuthStateChange((event, session) => {
-      toast({ description: `${event} ${session?.expires_in}` });
-    });
-    return sub.data.subscription.unsubscribe();
-  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

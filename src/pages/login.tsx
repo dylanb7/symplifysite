@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { type UserResponse } from "@supabase/supabase-js";
+
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { type UserResponse } from "@supabase/auth-js";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
