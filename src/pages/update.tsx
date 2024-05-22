@@ -33,8 +33,6 @@ const UpdatePassword = ({
   user: User | null;
   error: AuthError | null;
 }) => {
-  const { asPath } = useRouter();
-
   const supabaseClient = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -48,19 +46,6 @@ const UpdatePassword = ({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const query = asPath?.split("#")?.at(1) ?? [];
-    const params = Object.fromEntries(new URLSearchParams(query));
-
-    const refresh = params.refresh_token;
-    const access = params.access_token;
-
-    if (refresh && access) {
-      await supabaseClient.auth.exchangeCodeForSession(access);
-      /*await supabaseClient.auth.setSession({
-        access_token: access,
-        refresh_token: refresh,
-      });*/
-    }
     const { error } = await supabaseClient.auth.updateUser({
       password: values.password,
     });
@@ -80,7 +65,12 @@ const UpdatePassword = ({
         </Label>
         <Label className="text-2xl">Neues Passwort</Label>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-8">
+          <form
+            onSubmit={() => {
+              form.handleSubmit(onSubmit);
+            }}
+            className=" space-y-8"
+          >
             <FormField
               control={form.control}
               name="password"
