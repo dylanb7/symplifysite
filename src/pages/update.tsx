@@ -47,10 +47,11 @@ const UpdatePassword: NextPage = () => {
     const access = params.access_token;
 
     if (refresh && access) {
-      await supabaseClient.auth.setSession({
+      await supabaseClient.auth.exchangeCodeForSession(access);
+      /*await supabaseClient.auth.setSession({
         access_token: access,
         refresh_token: refresh,
-      });
+      });*/
     }
     const { error } = await supabaseClient.auth.updateUser({
       password: values.password,
