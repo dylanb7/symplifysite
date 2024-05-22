@@ -16,26 +16,6 @@ const inter = Inter({
   variable: "--font-sans",
 });
 const MyApp = ({ Component, pageProps }: AppProps) => {
-  const { push, pathname } = useRouter();
-  const supabaseClient = createClient();
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((event) => {
-      if (pathname == "/update") return;
-      switch (event) {
-        case "SIGNED_IN":
-          void push("/");
-          return;
-        case "SIGNED_OUT":
-          void push("/login");
-          return;
-      }
-    });
-    return subscription.unsubscribe;
-  }, [pathname, push, supabaseClient.auth]);
-
   return (
     <CookiesProvider>
       <div className={`flex-1 ${inter.className}`}>

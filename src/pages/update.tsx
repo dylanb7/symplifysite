@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { type GetServerSidePropsContext, type NextPage } from "next";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,27 +13,31 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { createClient } from "~/utils/supabase/component";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
-
-import { useRouter } from "next/router";
-import { createSClient } from "~/utils/supabase/server";
-import { type AuthError, type User } from "@supabase/supabase-js";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
-const UpdatePassword = ({
-  user,
-  error,
-}: {
-  user: User | null;
-  error: AuthError | null;
-}) => {
-  const supabaseClient = createClient();
+const UpdatePassword = () => {
+  const [supabaseClient] = useState(() => createClient());
   const [loading, setLoading] = useState(false);
+
+  /*const setSession = useCallback(async () => {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (!data.session || error) {
+      await supabaseClient.auth.setSession();
+    }
+  }, []);*/
+
+  useEffect(() => {
+    const sub = supabaseClient.auth.onAuthStateChange((event, session) => {
+      toast({ description: `${event} ${session?.expires_in}` });
+    });
+    return sub.data.subscription.unsubscribe();
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,9 +63,6 @@ const UpdatePassword = ({
   return (
     <main className="mt-20 flex h-full w-full flex-col items-center justify-center">
       <div className="mx-auto flex max-w-lg flex-col items-start justify-start gap-2">
-        <Label>
-          {user?.email} {error?.message}
-        </Label>
         <Label className="text-2xl">Neues Passwort</Label>
         <Form {...form}>
           <form
@@ -93,20 +93,6 @@ const UpdatePassword = ({
       </div>
     </main>
   );
-};
-
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
-) => {
-  const client = createSClient(context);
-  const { data, error } = await client.auth.getUser();
-
-  return {
-    props: {
-      user: data.user,
-      error: error,
-    },
-  };
 };
 
 export default UpdatePassword;
