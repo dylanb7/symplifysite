@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useForm } from "react-hook-form";
@@ -13,7 +14,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { createClient } from "~/utils/supabase/component";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
 
@@ -48,15 +49,19 @@ const UpdatePassword = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+    try {
+      const response = await fetch("/api/update", {
+        method: "POST",
+        body: values.password,
+      });
 
-    const { error } = await supabaseClient.auth.updateUser({
-      password: values.password,
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: error.message });
-    } else {
-      toast({ title: "✅" });
+      const res = await response.json();
+
+      toast({ title: res });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 
