@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { type NextPage } from "next";
+import { type GetServerSidePropsContext, type NextPage } from "next";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,12 +19,20 @@ import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/use-toast";
 
 import { useRouter } from "next/router";
+import { createSClient } from "~/utils/supabase/server";
+import { type AuthError, type User } from "@supabase/supabase-js";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
-const UpdatePassword: NextPage = () => {
+const UpdatePassword = ({
+  user,
+  error,
+}: {
+  user: User | null;
+  error: AuthError | null;
+}) => {
   const { asPath } = useRouter();
 
   const supabaseClient = createClient();
@@ -47,7 +55,7 @@ const UpdatePassword: NextPage = () => {
     const access = params.access_token;
 
     if (refresh && access) {
-      //await supabaseClient.auth.exchangeCodeForSession(access);
+      await supabaseClient.auth.exchangeCodeForSession(access);
       /*await supabaseClient.auth.setSession({
         access_token: access,
         refresh_token: refresh,
@@ -67,6 +75,9 @@ const UpdatePassword: NextPage = () => {
   return (
     <main className="mt-20 flex h-full w-full flex-col items-center justify-center">
       <div className="mx-auto flex max-w-lg flex-col items-start justify-start gap-2">
+        <Label>
+          {user?.email} {error?.message}
+        </Label>
         <Label className="text-2xl">Neues Passwort</Label>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-8">
@@ -92,6 +103,20 @@ const UpdatePassword: NextPage = () => {
       </div>
     </main>
   );
+};
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  const client = createSClient(context);
+  const { data, error } = await client.auth.getUser();
+
+  return {
+    props: {
+      user: data.user,
+      error: error,
+    },
+  };
 };
 
 export default UpdatePassword;
