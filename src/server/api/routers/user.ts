@@ -23,10 +23,8 @@ export const userRouter = createTRPCRouter({
   updatePassword: publicProcedure
     .input(z.object({ password: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const res = await ctx.supabase?.auth.updateUser({
+      return await ctx.supabase?.auth.updateUser({
         password: input.password,
       });
-      if (res?.error) return res.error.message;
-      return "✅";
     }),
 });

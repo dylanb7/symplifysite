@@ -12,13 +12,15 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { api } from "~/utils/api";
+import { toast } from "~/components/ui/use-toast";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword = () => {
-  const { data, isPending, mutate } = api.user.updatePassword.useMutation();
+  const { data, isPending, mutateAsync } =
+    api.user.updatePassword.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -27,8 +29,13 @@ const UpdatePassword = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    mutate({ password: values.password });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const val = await mutateAsync({ password: values.password });
+    if (val?.error) {
+      toast({ title: val.error.code, description: val.error.message });
+    } else {
+      toast({ title: "✅" });
+    }
   }
 
   return (
