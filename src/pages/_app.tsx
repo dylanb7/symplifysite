@@ -5,7 +5,6 @@ import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Toaster } from "~/components/ui/toaster";
-import { CookiesProvider } from "react-cookie";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,12 +12,10 @@ const inter = Inter({
 });
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <CookiesProvider>
-      <div className={`flex-1 ${inter.className}`}>
-        <Component {...pageProps} />
-        <Toaster />
-      </div>
-    </CookiesProvider>
+    <div className={`flex-1 ${inter.className}`}>
+      <Component {...pageProps} />
+      <Toaster />
+    </div>
   );
 };
 

@@ -12,13 +12,15 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { api } from "~/utils/api";
-import { toast } from "~/components/ui/use-toast";
+import { useToast } from "~/components/ui/use-toast";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword = () => {
+  const { toast } = useToast();
+
   const { isPending, mutateAsync } = api.user.updatePassword.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({

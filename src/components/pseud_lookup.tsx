@@ -1,11 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   useReactTable,
@@ -306,8 +300,6 @@ const getDetails = (
 
 const CodeLookup: React.FC<{ pseud: string }> = ({ pseud }) => {
   const { data, isLoading } = api.actions.lookup.useQuery(pseud);
-
-  console.log(data);
 
   const [pseudData, setPseudData] = useState<pseudonymData | undefined>(
     undefined,

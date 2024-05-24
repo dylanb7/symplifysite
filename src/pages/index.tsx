@@ -6,11 +6,12 @@ import { useRouter } from "next/router";
 import { CreateAccessCode } from "~/components/create_code";
 import { PseudLookup } from "~/components/pseud_lookup";
 import { Button } from "~/components/ui/button";
-import { toast } from "~/components/ui/use-toast";
+import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/utils/api";
 import { createSClient } from "~/utils/supabase/server";
 
 const HomePage: NextPage<User> = (user) => {
+  const { toast } = useToast();
   const { replace } = useRouter();
 
   const { mutateAsync, isPending } = api.user.logout.useMutation();
