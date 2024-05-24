@@ -19,8 +19,7 @@ const formSchema = z.object({
 });
 
 const UpdatePassword = () => {
-  const { data, isPending, mutateAsync } =
-    api.user.updatePassword.useMutation();
+  const { isPending, mutateAsync } = api.user.updatePassword.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
