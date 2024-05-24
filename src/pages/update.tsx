@@ -44,12 +44,7 @@ const UpdatePassword = () => {
       <div className="mx-auto flex max-w-lg flex-col items-start justify-start gap-2">
         <Label className="text-2xl">Neues Passwort</Label>
         <Form {...form}>
-          <form
-            onSubmit={() => {
-              form.handleSubmit(onSubmit);
-            }}
-            className=" space-y-8"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-8">
             <FormField
               control={form.control}
               name="password"
