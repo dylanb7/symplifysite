@@ -54,8 +54,8 @@ const UpdatePassword = () => {
     const client = createClient();
     const access_token = hash?.access_token;
     const refresh_token = hash?.refresh_token;
-    const session = await client.auth.getSession();
-    if (!session.data && access_token && refresh_token) {
+    const res = await client.auth.getSession();
+    if (!res.data.session && access_token && refresh_token) {
       const sesh = await client.auth.setSession({
         access_token,
         refresh_token,
