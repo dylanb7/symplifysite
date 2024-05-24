@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-
+import { api } from "~/utils/api";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +22,7 @@ import { Label } from "@radix-ui/react-label";
 import { Button } from "~/components/ui/button";
 import { LoadingSpinner } from "~/components/loading-spinner";
 
-const formSchema = z.object({
+export const loginSchema = z.object({
   email: z.string().min(0, {
     message: "Email must be included.",
   }),
@@ -37,9 +36,10 @@ const LoginPage: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
   const [currentUser, setUser] = useState<UserResponse | undefined>(undefined);
+  const { mutateAsync, isPending } = api.user.login.useMutation();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -48,15 +48,15 @@ const LoginPage: NextPage = () => {
 
   const supabaseClient = createClient();
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true);
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: error.code, description: error.message });
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    const ret = await mutateAsync({ ...values });
+    if (ret?.error) {
+      toast({
+        title: ret.error.code,
+        description: ret.error.message,
+      });
+    } else if (ret?.data) {
+      void replace("/");
     }
   }
 
@@ -74,7 +74,7 @@ const LoginPage: NextPage = () => {
     }
   }, []);
 
-  if (loading) {
+  if (loading || isPending) {
     return <LoadingSpinner />;
   }
 

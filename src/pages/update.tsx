@@ -1,7 +1,3 @@
-"use server";
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable react-hooks/exhaustive-deps */
-
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,22 +11,14 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
-import { toast } from "~/components/ui/use-toast";
-import { useState } from "react";
+import { api } from "~/utils/api";
 
 const formSchema = z.object({
   password: z.string().min(0),
 });
 
 const UpdatePassword = () => {
-  const [loading, setLoading] = useState(false);
-
-  /*const setSession = useCallback(async () => {
-    const { data, error } = await supabaseClient.auth.getSession();
-    if (!data.session || error) {
-      await supabaseClient.auth.setSession();
-    }
-  }, []);*/
+  const { data, isPending, mutate } = api.user.updatePassword.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,22 +27,8 @@ const UpdatePassword = () => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/update", {
-        method: "POST",
-        body: values.password,
-      });
-
-      const res = await response.json();
-
-      toast({ title: res });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    mutate({ password: values.password });
   }
 
   return (
@@ -81,10 +55,11 @@ const UpdatePassword = () => {
               )}
             />
             <Button type="submit">
-              {loading
+              {isPending
                 ? "Passwort aktualisieren ..."
                 : "Passwort aktualisieren"}
             </Button>
+            {data && <Label>{data}</Label>}
           </form>
         </Form>
       </div>

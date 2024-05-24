@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import React, { useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   useReactTable,
@@ -14,12 +20,14 @@ import {
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import { useDownloadExcel } from "react-export-table-to-excel";
-import { createClient } from "~/utils/supabase/component";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { LoadingSpinner } from "./loading-spinner";
 import { Separator } from "./ui/separator";
+import { api } from "~/utils/api";
+import { type PostgrestError } from "@supabase/supabase-js";
+import { Label } from "./ui/label";
 
 dayjs.extend(LocalizedFormat);
 
@@ -71,9 +79,9 @@ type testResponse = stamp & {
 
 type pseudonymData = {
   pseud: string;
-  nonDetail: noDetailResponse[] | string;
-  details: detailResponse[] | string;
-  tests: testResponse[] | string;
+  nonDetail: noDetailResponse[] | PostgrestError;
+  details: detailResponse[] | PostgrestError;
+  tests: testResponse[] | PostgrestError;
 };
 
 interface question {
@@ -296,60 +304,62 @@ const getDetails = (
   };
 };
 
-function parseRes<T>(res: {
-  error: { message: string | T };
-  data: string | T;
-}): T | string {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  return res.error ? res.error.message : res.data;
-}
+const CodeLookup: React.FC<{ pseud: string }> = ({ pseud }) => {
+  const { data, isLoading } = api.actions.lookup.useQuery(pseud);
 
-export const PseudLookup: React.FC = () => {
-  const supabase = createClient();
-
-  const [pseud, setPseud] = useState("");
-
-  const [loading, setLoading] = useState(false);
+  console.log(data);
 
   const [pseudData, setPseudData] = useState<pseudonymData | undefined>(
     undefined,
   );
 
-  const submit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    setLoading(true);
-    const pseudResponses = await supabase
-      .from("pseud_responses")
-      .select()
-      .eq("pseud", pseud);
-    const detailResponses = await supabase
-      .from("detail")
-      .select()
-      .eq("pseud", pseud);
-    const testResponses = await supabase
-      .from("blue_dye_resp")
-      .select()
-      .eq("pseud", pseud);
-    const non = parseRes<noDetailResponse[]>(pseudResponses);
-    const grouper = parseRes<detailPartialResponse[]>(detailResponses);
-    const tests = parseRes<testResponse[]>(testResponses);
-    if (typeof non !== "string" && typeof grouper !== "string") {
-      const { details, non: nonDetail } = getDetails(grouper, non);
+  useEffect(() => {
+    if (!data) return;
+
+    if (
+      !Array.isArray(data.detailResponses) ||
+      !Array.isArray(data.responses)
+    ) {
       setPseudData({
-        nonDetail,
-        details,
-        tests,
-        pseud,
+        pseud: pseud,
+        details: {
+          code: "401",
+          message: "Unable to group",
+          hint: "",
+          details: "",
+        },
+        nonDetail: data.responses,
+        tests: data.testResponses,
       });
     } else {
+      const { details, non } = getDetails(data.detailResponses, data.responses);
+
       setPseudData({
+        pseud: pseud,
+        details,
         nonDetail: non,
-        details: "Could not construct details",
-        tests: parseRes<testResponse[]>(testResponses),
-        pseud,
+        tests: data.testResponses,
       });
     }
-    setLoading(false);
+  }, [data, pseud]);
+
+  return (
+    <CardContent>
+      <Separator />
+      {isLoading && <LoadingSpinner />}
+      {pseudData && <EntryDisplay data={pseudData} />}
+    </CardContent>
+  );
+};
+
+export const PseudLookup: React.FC = () => {
+  const [pseud, setPseud] = useState("");
+
+  const [lookup, setLookup] = useState<string | undefined>(undefined);
+
+  const submit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    setLookup(pseud);
   };
 
   return (
@@ -366,21 +376,11 @@ export const PseudLookup: React.FC = () => {
             placeholder="Enter Pseudonym"
             required
           />
-          {!loading ? (
-            <Button onClick={(e) => submit(e)}>Lookup</Button>
-          ) : (
-            <LoadingSpinner />
-          )}
+
+          <Button onClick={(e) => submit(e)}>Lookup</Button>
         </div>
       </CardHeader>
-      <CardContent>
-        {pseudData && (
-          <>
-            <Separator />
-            <EntryDisplay data={pseudData} />
-          </>
-        )}
-      </CardContent>
+      {lookup && <CodeLookup pseud={lookup} />}
     </Card>
   );
 };
@@ -433,13 +433,16 @@ const EntryDisplay: React.FC<{ data: pseudonymData }> = ({ data }) => {
           label={"Format responses"}
         />
       </div>
-      {typeof tests !== "string" ? (
+      {Array.isArray(tests) ? (
         <TestsTable data={tests} prettyDates={prettyDates} pseud={data.pseud} />
       ) : (
-        <p>{tests}</p>
+        <div className="flex flex-col gap-2">
+          <Label className="text-red-500">tests.code</Label>
+          <Label className="text-red-500">tests.message</Label>
+        </div>
       )}
 
-      {typeof details !== "string" ? (
+      {Array.isArray(details) ? (
         <DetailResponsesTable
           data={details}
           prettyDates={prettyDates}
@@ -447,9 +450,12 @@ const EntryDisplay: React.FC<{ data: pseudonymData }> = ({ data }) => {
           pseud={data.pseud}
         />
       ) : (
-        <p>{details}</p>
+        <div className="flex flex-col gap-2">
+          <Label className="text-red-500">details.code</Label>
+          <Label className="text-red-500">details.message</Label>
+        </div>
       )}
-      {typeof nonDetail !== "string" ? (
+      {Array.isArray(nonDetail) ? (
         <ResponsesTable
           data={nonDetail}
           prettyDates={prettyDates}
@@ -457,7 +463,10 @@ const EntryDisplay: React.FC<{ data: pseudonymData }> = ({ data }) => {
           pseud={data.pseud}
         />
       ) : (
-        <p>{nonDetail}</p>
+        <div className="flex flex-col gap-2">
+          <Label className="text-red-500">nonDetail.code</Label>
+          <Label className="text-red-500">nonDetail.message</Label>
+        </div>
       )}
     </div>
   );

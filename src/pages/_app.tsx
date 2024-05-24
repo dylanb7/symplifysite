@@ -4,10 +4,6 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 import type { AppProps } from "next/app";
-import { useEffect } from "react";
-
-import { useRouter } from "next/router";
-import { createClient } from "~/utils/supabase/component";
 import { Toaster } from "~/components/ui/toaster";
 import { CookiesProvider } from "react-cookie";
 

@@ -1,33 +1,21 @@
-import { type UserResponse } from "@supabase/auth-js";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { type User } from "@supabase/supabase-js";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { CreateAccessCode } from "~/components/create_code";
 import { PseudLookup } from "~/components/pseud_lookup";
 import { Button } from "~/components/ui/button";
-import { createClient } from "~/utils/supabase/component";
+import { toast } from "~/components/ui/use-toast";
+import { api } from "~/utils/api";
 import { createSClient } from "~/utils/supabase/server";
 
-const HomePage: NextPage = () => {
-  const supabaseClient = createClient();
+const HomePage: NextPage<User> = (user) => {
+  const { replace } = useRouter();
 
-  const [currentUser, setUser] = useState<UserResponse | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { mutateAsync, isPending } = api.user.logout.useMutation();
 
-  useEffect(() => {
-    const getUser = async () => {
-      setLoading(true);
-      const user = await supabaseClient.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-
-    if (!currentUser) {
-      void getUser();
-    }
-  }, []);
-
-  if (loading) {
+  if (isPending) {
     return (
       <div role="status" className="flex h-screen items-center justify-center">
         <svg
@@ -51,12 +39,23 @@ const HomePage: NextPage = () => {
     );
   }
 
-  if (currentUser && !currentUser.data.user) redirect("/login");
+  if (!user) redirect("/login");
 
   return (
     <div className="m-4 flex flex-col justify-start gap-2">
       <div>
-        <Button onClick={() => supabaseClient.auth.signOut()}>Sign out</Button>
+        <Button
+          onClick={async () => {
+            const ret = await mutateAsync();
+            if (ret?.error) {
+              toast({ title: ret.error.code, description: ret.error.message });
+            } else {
+              void replace("/login");
+            }
+          }}
+        >
+          Sign out
+        </Button>
       </div>
       <CreateAccessCode />
       <PseudLookup />
