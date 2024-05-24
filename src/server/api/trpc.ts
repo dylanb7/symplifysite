@@ -38,7 +38,7 @@ export async function createContextInner(opts?: CreateInnerContextOptions) {
 }
 
 export async function createContext(opts: CreateNextContextOptions) {
-  const supabase = createClient();
+  const supabase = createClient(opts.req, opts.res);
   const user = await supabase.auth.getUser();
   const contextInner = await createContextInner({ supabase, user });
   return {
