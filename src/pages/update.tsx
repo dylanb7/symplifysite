@@ -15,7 +15,7 @@ import { api } from "~/utils/api";
 import { useToast } from "~/components/ui/use-toast";
 
 const formSchema = z.object({
-  password: z.string().min(0),
+  password: z.string().min(6),
 });
 
 const UpdatePassword = () => {
