@@ -66,7 +66,6 @@ const UpdatePassword = () => {
                 ? "Passwort aktualisieren ..."
                 : "Passwort aktualisieren"}
             </Button>
-            {data && <Label>{data}</Label>}
           </form>
         </Form>
       </div>
