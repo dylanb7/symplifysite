@@ -10,12 +10,13 @@ import {
   FormLabel,
   FormControl,
 } from "~/components/ui/form";
+
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { api } from "~/utils/api";
 import { useToast } from "~/components/ui/use-toast";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { createClient } from "~/utils/supabase/component";
 import { useEffect, useState } from "react";
 
@@ -24,6 +25,8 @@ const formSchema = z.object({
 });
 
 const UpdatePassword = () => {
+  const searchParams = useSearchParams();
+
   const { toast } = useToast();
 
   const { isPending, mutateAsync } = api.user.updatePassword.useMutation();
@@ -55,16 +58,28 @@ const UpdatePassword = () => {
     const access_token = hash?.access_token;
     const refresh_token = hash?.refresh_token;
     const res = await client.auth.getSession();
-    if (!res.data.session && access_token && refresh_token) {
-      const sesh = await client.auth.setSession({
-        access_token,
-        refresh_token,
-      });
-      if (sesh.error) {
-        toast({
-          title: sesh.error.code,
-          description: sesh.error.message,
+    if (!res.data.session) {
+      if (access_token && refresh_token) {
+        const sesh = await client.auth.setSession({
+          access_token,
+          refresh_token,
         });
+        if (sesh.error) {
+          toast({
+            title: sesh.error.code,
+            description: sesh.error.message,
+          });
+        }
+      }
+      const code = searchParams.get("code");
+      if (code) {
+        const sesh = await client.auth.exchangeCodeForSession(code);
+        if (sesh.error) {
+          toast({
+            title: sesh.error.code,
+            description: sesh.error.message,
+          });
+        }
       }
     }
     const val = await mutateAsync({ password: values.password });

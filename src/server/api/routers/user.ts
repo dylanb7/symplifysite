@@ -27,4 +27,12 @@ export const userRouter = createTRPCRouter({
         password: input.password,
       });
     }),
+
+  forgotPassword: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.supabase?.auth.resetPasswordForEmail(input.email, {
+        redirectTo: "https://portal.symplifysolutions.com/update",
+      });
+    }),
 });
