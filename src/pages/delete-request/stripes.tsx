@@ -14,8 +14,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useToast } from "~/components/ui/use-toast";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+//const resend = new Resend(process.env.RESEND_API_KEY);
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -24,25 +25,38 @@ const formSchema = z.object({
 const DeleteRequest: NextPage = () => {
   const form = useForm<z.infer<typeof formSchema>>();
 
-  const formSubmit = (value: z.infer<typeof formSchema>) => {
-    resend.emails.send({
-      text: `${value.email} would like to delete their Stripes account.`,
-      from: value.email,
-      subject: "Account Deletion Request",
-      to: "help@symplifysolutions.com",
+  const { toast } = useToast();
+
+  const formSubmit = async (value: z.infer<typeof formSchema>) => {
+    const res = await fetch("/api/send-delete", {
+      method: "POST",
+      body: JSON.stringify(value),
+      headers: { "Content-Type": "application/json" },
     });
+    if (res.ok) {
+      toast({ title: "Email sent" });
+    } else {
+      toast({
+        title: "Something went wrong",
+        description: JSON.stringify(res.json),
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="mx-4">
-      <div className="mx-auto mt-16 max-w-prose flex-col items-center justify-center">
+      <div className="mx-auto mt-16 flex max-w-prose flex-col items-center justify-center">
         <Label className="text-2xl font-bold">Account Deletion Request</Label>
         <Label className="my-6">
           Notify the Stripes team that you want an account deletion by providing
           the email address you used to create your Stripes account.
         </Label>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-8">
+          <form
+            onSubmit={form.handleSubmit(formSubmit)}
+            className="flex flex-col justify-center space-y-4"
+          >
             <FormField
               control={form.control}
               name="email"
